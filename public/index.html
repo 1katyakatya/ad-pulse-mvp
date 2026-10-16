@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Загрузите CSV рекламных кампаний и получите показатели, сигналы и готовый отчёт. Всё обрабатывается локально в браузере.">
+  <title>Пульс рекламы — из цифр в решения</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23263e36'/%3E%3Cpath d='M7 22h7l4-11 5 20 4-12h6' fill='none' stroke='%23c8e6a1' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css"><script type="module" src="app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="Пульс рекламы — главная"><span class="brand-icon">↗</span><span>пульс<span class="brand-small">рекламы</span></span></a>
+    <div class="nav-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
+    <div class="nav-item active"><span>▦</span> Обзор кампаний <span class="nav-dot"></span></div>
+    <div class="sidebar-note"><span class="note-icon">◎</span><strong>От таблицы к решению</strong><p>Проверяйте расходы,<br>находите точки внимания<br>и собирайте отчёт.</p></div>
+    <div class="local-status"><span></span> Данные остаются у вас</div>
+    <div class="sidebar-footer">Учебный MVP · v1.0</div>
+  </aside>
+  <main>
+    <header class="topbar"><span>Аналитика / <strong>Обзор кампаний</strong></span><span class="privacy">◈ &nbsp; Локальная обработка</span></header>
+    <section class="page-heading"><div><div class="eyebrow">ЯСНАЯ КАРТИНА ВАШЕЙ РЕКЛАМЫ</div><h1>Как работает реклама?</h1><p>Загрузите выгрузку. Увидьте главное. Подготовьте отчёт.</p></div><span class="version">CSV → результат</span></section>
+    <section class="import-panel" aria-label="Данные и настройки">
+      <div class="import-copy"><span class="file-icon">↥</span><div><strong id="source-name">Демонстрационные данные</strong><p id="source-detail">Вымышленные кампании · пример работы сервиса</p></div></div>
+      <div class="import-actions"><button id="demo" class="button secondary">Загрузить пример</button><button id="upload" class="button primary">↑ &nbsp; Загрузить CSV</button><input type="file" id="file" accept=".csv,text/csv,text/plain" hidden></div>
+    </section>
+    <div class="under-import"><a href="demo.csv" download>↓ Скачать образец CSV</a><span>UTF-8 · до 2 МБ · данные не сохраняются после перезагрузки</span></div>
+    <p id="message" role="status" aria-live="polite"></p>
+    <section class="section-title"><h2>Вся картина в четырёх цифрах</h2><span id="campaign-count"></span></section>
+    <section class="kpis" aria-label="Основные показатели">
+      <article class="kpi"><div class="kpi-label">Расход <span>₽</span></div><strong id="total-cost">—</strong><p id="total-impressions"></p></article>
+      <article class="kpi"><div class="kpi-label">Клики <span>↗</span></div><strong id="total-clicks">—</strong><p id="total-ctr"></p></article>
+      <article class="kpi"><div class="kpi-label">Заявки <span>◎</span></div><strong id="total-leads">—</strong><p id="total-cr"></p></article>
+      <article class="kpi featured"><div class="kpi-label">Стоимость заявки <span>◉</span></div><strong id="total-cpl">—</strong><p id="target-note"></p></article>
+    </section>
+    <section class="analysis-grid">
+      <article class="panel chart-panel"><div class="panel-heading"><div><h2>Куда уходит бюджет</h2><p>Распределение расходов по кампаниям</p></div><span class="subtle">₽</span></div><div id="chart" class="bar-chart"></div></article>
+      <article class="panel insights-panel"><div class="panel-heading"><div><h2>На что обратить внимание</h2><p>Сигналы по вашим правилам</p></div><span class="insight-symbol">✦</span></div><div id="insights"></div><p class="insights-note">Сигналы помогают выбрать, что проверить. Они не заменяют оценку качества заявок.</p></article>
+    </section>
+    <section class="panel table-panel"><div class="table-heading"><div><h2>Кампании под контролем</h2><p>Цифры и статус каждой кампании</p></div><label class="target-label">Цель CPL, ₽ <input id="target" type="number" min="1" max="1000000000" value="1500" step="100" inputmode="decimal"></label></div>
+      <div class="table-tools"><div class="tabs" role="group" aria-label="Фильтр кампаний"><button class="tab selected" id="all" aria-pressed="true">Все кампании</button><button class="tab" id="problems" aria-pressed="false">Требуют внимания <span id="problem-count">0</span></button></div><button class="text-button" id="download">↓ Скачать отчёт</button></div>
+      <div class="table-scroll"><table><thead><tr><th scope="col">Кампания</th><th scope="col">Расход</th><th scope="col">Клики</th><th scope="col">CTR</th><th scope="col">Заявки</th><th scope="col">CPL</th><th scope="col">Статус</th></tr></thead><tbody id="table-body"></tbody></table></div>
+      <div class="table-footer"><span id="visible-count"></span><span>CPL = расход / заявки · «—» = нет данных для расчёта</span></div>
+    </section>
+    <footer class="page-footer"><span>пульс рекламы <span>·</span> Меньше ручных расчётов, больше ясности.</span><span>Без API-ключей и регистрации</span></footer>
+  </main>
+</body></html>

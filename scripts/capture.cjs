@@ -1,0 +1,42 @@
+// Optional development tool: npm install --no-save --package-lock=false playwright
+const { chromium } = require('playwright');
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+
+(async () => {
+  const browser = await chromium.launch({headless:true, ...(fs.existsSync(chromium.executablePath()) ? {} : {channel:process.env.BROWSER_CHANNEL || 'chrome'})});
+  const page = await browser.newPage({viewport:{width:1440,height:1100}, deviceScaleFactor:1});
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  const requests=[]; page.on('request', r=> requests.push(r.url()));
+  const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4173';
+  const response = await page.goto(base); assert.equal(response.status(),200);
+  await page.locator('#table-body tr').first().waitFor();
+  assert.equal(await page.locator('#table-body tr').count(),6);
+  assert.equal((await page.locator('#total-cost').innerText()).replace(/\s/g,''),'150000₽');
+  await page.locator('#problems').click(); assert.equal(await page.locator('#table-body tr').count(),2);
+  await page.locator('#target').fill('1000'); assert.equal(await page.locator('#table-body tr').count(),3);
+  await page.locator('#target').fill('0'); await page.locator('#message.error').waitFor();
+  await page.locator('#target').fill('1500'); await page.locator('#all').click();
+  await page.locator('#file').setInputFiles({name:'invalid.csv', mimeType:'text/csv',buffer:Buffer.from('campaign,clicks\nA,no')});
+  await page.locator('#message.error').waitFor(); assert.equal(await page.locator('#table-body tr').count(),6);
+  await page.locator('#file').setInputFiles(path.join(__dirname,'../public/demo.csv'));
+  await page.getByText('Файл загружен. Показатели обновлены.').waitFor();
+  const downloadEvent = page.waitForEvent('download'); await page.locator('#download').click();
+  const download = await downloadEvent; const report = fs.readFileSync(await download.path(),'utf8'); assert.match(report,/151/); assert.match(report,/РСЯ — широкая аудитория/);
+  await page.locator('#demo').click(); await page.locator('#source-name').filter({hasText:'Демонстрационные данные'}).waitFor();
+  await page.evaluate(()=>document.fonts.ready);
+  const images=path.join(__dirname,'../images'); fs.mkdirSync(images,{recursive:true});
+  await page.screenshot({path:path.join(images,'dashboard-desktop.png'),fullPage:true});
+  await page.locator('#problems').click();
+  await page.screenshot({path:path.join(images,'campaign-alerts.png'),fullPage:true});
+  await page.locator('#all').click();
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+  await page.screenshot({path:path.join(images,'dashboard-mobile.png'),fullPage:true});
+  assert.deepEqual(errors,[]);
+  assert.ok(requests.every(url=>url.startsWith(base)||url.startsWith('blob:')));
+  const result = {date:new Date().toISOString(),checks:['HTTP 200','demo totals','problem filter','CPL threshold','invalid threshold','invalid CSV preserves data','valid CSV upload','report download','mobile width','no JS errors','no external requests'],screenshots:['dashboard-desktop.png','campaign-alerts.png','dashboard-mobile.png']};
+  fs.mkdirSync(path.join(__dirname,'../docs'),{recursive:true}); fs.writeFileSync(path.join(__dirname,'../docs/browser-check.json'),JSON.stringify(result,null,2));
+  console.log(JSON.stringify(result,null,2)); await browser.close();
+})().catch(error=>{console.error(error);process.exit(1);});

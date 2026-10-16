@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-16T14:42:30.000Z",
+  "checks": [
+    "HTTP 200",
+    "demo totals",
+    "problem filter",
+    "CPL threshold",
+    "invalid threshold",
+    "invalid CSV preserves data",
+    "valid CSV upload",
+    "report download",
+    "mobile width",
+    "no JS errors",
+    "no external requests"
+  ],
+  "screenshots": [
+    "dashboard-desktop.png",
+    "campaign-alerts.png",
+    "dashboard-mobile.png"
+  ]
+}
